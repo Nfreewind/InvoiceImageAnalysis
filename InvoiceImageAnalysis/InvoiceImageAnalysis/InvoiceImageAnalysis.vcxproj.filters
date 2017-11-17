@@ -45,12 +45,21 @@
     <ClInclude Include="AntigerBarcode.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="QczUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="QczEllipsePkg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="QczTemplateMaker.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="QczPreProcess.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="InvoiceImageAnalysis.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="AntigerResize.cpp">
@@ -72,6 +81,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="AntigerBarcode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="QczUtils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="QczEllipsePkg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="QczEllipsePkgTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="QczTemplateMaker.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="QczPreProcess.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

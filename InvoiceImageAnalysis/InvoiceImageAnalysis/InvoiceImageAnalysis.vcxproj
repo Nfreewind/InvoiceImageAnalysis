@@ -149,7 +149,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;-D_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,6 +167,10 @@
     <ClInclude Include="AntigerEllipseCommon.h" />
     <ClInclude Include="AntigerResize.h" />
     <ClInclude Include="AntigerWMF.h" />
+    <ClInclude Include="QczEllipsePkg.h" />
+    <ClInclude Include="QczPreProcess.h" />
+    <ClInclude Include="QczTemplateMaker.h" />
+    <ClInclude Include="QczUtils.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -178,7 +182,11 @@
     <ClCompile Include="AntigerEllipse.cpp" />
     <ClCompile Include="AntigerEllipseCommon.cpp" />
     <ClCompile Include="AntigerResize.cpp" />
-    <ClCompile Include="InvoiceImageAnalysis.cpp" />
+    <ClCompile Include="QczEllipsePkg.cpp" />
+    <ClCompile Include="QczEllipsePkgTest.cpp" />
+    <ClCompile Include="QczPreProcess.cpp" />
+    <ClCompile Include="QczTemplateMaker.cpp" />
+    <ClCompile Include="QczUtils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
