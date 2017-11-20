@@ -20,9 +20,11 @@ namespace QczFile{
 namespace QczStr{
 
 	// recursive replace the substr
-	string&   replace_all(string&   str, const   string&   old_value, const   string&   new_value);
+	string&		replace_all(string&   str, const   string&   old_value, const   string&   new_value);
 	// replace the substr once
-	string&   replace_all_distinct(string&   str, const   string&   old_value, const   string&   new_value);
+	string&		replace_all_distinct(string&   str, const   string&   old_value, const   string&   new_value);
+
+	string		int2string(int input);
 }
 
 namespace QczSort{
@@ -30,5 +32,12 @@ namespace QczSort{
 	inline bool compareRectWidth(const cv::Rect& a, const cv::Rect& b){
 		return a.width > b.width;
 	};
+	inline bool compareRectArea(const cv::Rect& a, const cv::Rect& b){
+		return a.area() > b.area();
+	};
 
+	template<typename T,typename D>
+	inline bool compareIndexD(const pair<T, D>& a, const pair<T, D>& b){
+		return a.first < b.first;
+	}
 }

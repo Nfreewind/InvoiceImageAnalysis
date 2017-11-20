@@ -4,19 +4,20 @@
   <PropertyGroup Label="UserMacros">
     <DebugOpencvLib>opencv_core248d.lib;opencv_highgui248d.lib;opencv_imgproc248d.lib;opencv_ml248d.lib;opencv_objdetect248d.lib;</DebugOpencvLib>
     <ReleaseOpencvLib>opencv_core248.lib;opencv_highgui248.lib;opencv_imgproc248.lib;opencv_ml248.lib;opencv_objdetect248.lib;</ReleaseOpencvLib>
+	<OtherLib>FPCHH.lib;</OtherLib>
   </PropertyGroup>
   <PropertyGroup>
-    <LibraryPath>D:\opencv2.4.8\opencv\build\x64\vc12\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\opencv2.4.8\opencv\build\include\opencv;D:\opencv2.4.8\opencv\build\include;D:\opencv2.4.8\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\opencv2.4.8\opencv\build\x64\vc12\lib;$(SolutionDir)Dependencies\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\opencv2.4.8\opencv\build\include\opencv;D:\opencv2.4.8\opencv\build\include;D:\opencv2.4.8\opencv\build\include\opencv2;$(SolutionDir)Dependencies\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>$(ReleaseOpencvLib);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ReleaseOpencvLib);$(OtherLib);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>$(DebugOpencvLib);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(DebugOpencvLib);$(OtherLib);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>

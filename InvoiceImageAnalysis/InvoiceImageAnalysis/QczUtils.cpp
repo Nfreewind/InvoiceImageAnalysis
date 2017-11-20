@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "QczUtils.h"
+#include <sstream>
 
 namespace QczFile{
 	void getFiles_(string path, vector<string>& files)
@@ -62,5 +63,12 @@ namespace QczStr{
 		}
 		return   str;
 	}
-
+	// int to string
+	string int2string(int input){
+		stringstream ss;
+		string str;
+		ss << input;
+		ss >> str;
+		return str;
+	}
 }

@@ -12,6 +12,7 @@
 #include "QczUtils.h"
 #include "QczTemplateMaker.h"
 #include "QczPreProcess.h"
+#include <FastPCCR.h>
 
 using namespace cv;
 using namespace std;
@@ -24,6 +25,11 @@ void main(){
 
 	vector<string> ImgPaths;
 	QczFile::getFiles_(SrcImgFold, ImgPaths);
+
+	int a = InitializeRecognizer(".\\dictionary");
+	if (a != 0){ cout << "init failed!---" << endl; return; }
+
+
 
 	int minNum = 300;
 
