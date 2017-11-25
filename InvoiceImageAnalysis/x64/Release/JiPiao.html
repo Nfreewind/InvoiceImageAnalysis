@@ -1,0 +1,540 @@
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://www.travelsky.com:80/tsky/">
+<meta charset="utf-8" />
+<title>信天游 - 电子客票验真官网 航空公司官网机票价格总汇</title>
+<link rel="stylesheet" type="text/css" href="css/version2015/commonPc.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/version2015/valiResult.css" />
+<link rel="stylesheet" type="text/css" href="css/version2015/print.css"
+	media="print" />
+<script type="text/javascript" src="js/version2015/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="js/version2015/common.js"></script>
+<script type="text/javascript" src="js/version2015/index.js"></script>
+<script type="text/javascript" src="js/nt_travelsky.js"></script>
+<script type="text/javascript" src="js/validator.js"></script>
+<script type="text/javascript" src="JXEngine.js"></script>
+<script type="text/javascript">
+		function onLoad() {
+			var print = 'null';
+			if(print.toString() != "null"){
+				alert(print); 
+			}
+			var pName = 'QI/CHENGZUO';
+			if(pName == "输入姓名不正确"){
+				jQuery("#validate_view_journey_detail").hide();
+			}
+		}
+		new Image().src = "http://www.travelsky.com:80/tsky/images/loading.gif"; // 预加载图片
+	</script>
+<script type="text/javascript">
+		function printsetup() {
+			wb.execwb(8, 1);
+		}
+		function printpreview() {
+			wb.execwb(7, 1);
+		}
+		function doPrint(divid) {
+			alert('t');
+			var pwindow = window.open("validate.html", "_blank");
+			pwindow.document
+					.write("<link type='text/css' href='css/main.css' rel='stylesheet' />");
+			pwindow.document.write($$$(divid).innerHTML);
+			pwindow.focus();
+			pwindow.document.close();
+			pwindow.close;
+		}
+		function printit() {
+			$$$('wb').ExecWB(6, 1);
+		}
+	
+		
+		$(document).ready(function() {
+			var print = 'null';
+			if(print.toString() != "null"){
+				$(".error-txt").text(print);
+				$(".error-txt").removeClass("hide");
+			}
+			var pName = 'QI/CHENGZUO';
+			if(pName == "输入姓名不正确"){
+				$(".error-txt").text(pName);
+				$(".error-txt").removeClass("hide");
+				$("#passengerName_src").addClass("error-input");
+			}
+			if ($('#isFromIndex')[0]) {
+				if ($('#isFromIndex').val().toLocaleUpperCase() == 'TRUE') {
+					validate_Information();
+				}
+			}
+			$("#randCode").focus(function() {
+				$("#randCode").val("");
+			});
+			$("#img_randCode_t").click(function () {
+			    $("#img_randCode_t").attr("src", "servlet/CallYanServlet?title=nohome&now=" + new Date());
+			});
+
+			var validatorResult = true;
+			if (validatorResult == false) {
+				$(".error-txt").removeClass("hide");
+			}
+			
+		});
+	</script>
+</head>
+
+<body class="bg">
+	
+	
+	<div id="content">
+		<!--左侧边栏-start -->
+		<div class="narrow-left-box">
+			<!--验真输入框-start -->
+			<div class="verification-box">
+				<form id="validateForm" method="post" action="PCValidateServlet"
+					class="clearfix">
+					<input id="selFlag" type="hidden"></input> 
+					<input id="validateFlag" name="validateFlag" type="hidden" value="0" /> 
+					<input id="eticketNo" name="eticketNo" type="hidden" />
+					<input id="invoiceNo" name="invoiceNo" type="hidden" /> 
+					<input id="imgSrc" name="imgSrc" value="/tsky/images/loading.gif" type="hidden" />
+					
+					<div class="row mt50">
+						<div class="col1">电子客票/行程单号</div>
+						<div class="col2 eticket-box">
+							<input class="" type="text" id="eticketNoORIn"
+								name="eticketNoORIn"
+								value="12546020782" />
+							<div class="eticket-hover-box hide">
+								<span class="verification-arrow"></span>
+								<p>13位国内BSP电子客票号码（验真期限：使用前1年内，使用后1个月内）；或输入11位航空运输电子客票行程单印刷序号。</p>
+							</div>
+							<i class="icon-cha clear-text-ico hide"></i>
+						</div>
+					</div>
+					<div class="row mt20">
+						<div class="col1">旅客姓名</div>
+						<div class="col2 passenger-box">
+							<input class="" type="text" id="passengerName_src"
+								name="passengerName_src"
+								value="QI/CHENGZUO" /> <input
+								type="hidden" id="passengerName" name="passengerName" />
+							<div class="passenger-hover-box hide">
+								<span class="verification-arrow"></span>
+								<p>订票时输入的旅客姓名，英文名请注意格式。</p>
+							</div>
+							<i class="icon-cha clear-text-ico hide"></i>
+						</div>
+					</div>
+					
+					<div class="row mt20">
+						<div class="col1">输入验证码</div>
+						<div class="col2 veri-box">
+							<input class="veri-code-input" type="text" id="randCode"
+								name="randCode" value="" />
+							<img class="veri-img" id="img_randCode_t" name="img_randCode"
+								src="servlet/CallYanServlet?title=home" alt="看不清？点击换一张"
+								style="cursor: pointer"> <i
+								class="icon-cha clear-text-ico hide"></i>
+						</div>
+					</div>
+					<div class="row error-txt-row ">
+						<div class="col1">&nbsp;</div>
+						<div class="col2">
+							<span class="error-txt hide">电子票号或验证码不正确</span>
+						</div>
+					</div>
+					<div class="row btn-row ">
+						<div class="col-btn">
+							<input class="verification-btn" type="button" value="验真"
+								onclick="validate_Information()" />
+						</div>
+					</div>
+					<div class="row mt10 wx-box ev-wx-box">
+						<div class="col3">官方机票验真微信公众号：travelsky_cs</div>
+						<img class="img-wx ev-img-wx hide" src="img/wx.jpg" />
+					</div>
+					<div class="row">
+						<div class="col1">人工验真服务</div>
+						<div class="col2 line-height30">
+							<span class="hotline new-hotline">400-815-8888</span>
+						</div>
+					</div>
+				</form>
+			</div>
+			<!--验真输入框-end-->
+			<!-- -->
+
+		</div>
+		<!--左侧边栏-end-->
+
+		<!-- 右侧 无姓名 start-->
+		<div class="result-box w-665">
+			<!-- 印章图 start -->
+			<div class="seal-pic"></div>
+			<!-- 印章图 end -->
+			<div class="clearfix rs-box">
+
+
+
+
+				
+				<!-- 保险部分start -->
+				<ul class="clearfix info-ul">
+					<li class="w232 h27"><span class="bold-txt mr18"> QI/CHENGZUO
+					</span> <span class="ordi-txt">您好！</span></li>
+					<li class="w296 h27"><span class="mr10">印刷序号：</span> <span
+						class="bold-txt">  1254602078&#160;&#160;2
+							
+					</span></li>
+					<li class="w82 h27">
+						<!-- 已购保险 start -->
+						<div class="ins-box ins-box-al f-has-ins">
+							<a class="bold-txt color-blue" href="javascript:void(0)"><i
+								class="icon-info"></i>已购保险</a>
+							<!-- 保险浮层 start -->
+							<div class="clearfix insurance-box hide ">
+								<ul class="clearfix ins-ul">
+									<li class="li-first"><span class="span-u-name">QI/CHENGZUO</span>
+										<span class="span-ins-tip">已购保险</span> <span
+										class="span-ins-tip ins-blue ins-bold">2</span></li>
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+									
+								</ul>
+								<img class="down-img" src="img/ins-down.png" />
+							</div>
+							<!-- 保险浮层 end -->
+						</div> <!-- 已购保险 end --> <!-- 未购保险 start -->
+						<div class="ins-box hide f-nothas-ins">
+							<a class="bold-txt " href="javascript:void(0)">&nbsp;</a>
+						</div> <!-- 未购保险 end --> <!-- 保险部分end -->
+					</li>
+				</ul>
+				
+
+
+				<!-- 客票信息 start -->
+				
+				
+				<!-- 客票信息 start -->
+				<div class="trip-table-box">
+					<table class="trip-table">
+						
+						<tr>
+
+							<td width="80"><div class="coln coln-first">
+									航段1</div></td>
+							<td width="218"><div class="coln coln-second">
+									<span class="mr35">07月09日 10:55</span>
+								</div></td>
+							<td width="111"><div class="coln coln-third">CA111</div></td>
+							<td width="195">
+								 
+								<div class="coln coln-fourth coln-green status_1">客票已使用</div> 
+							</td>
+						</tr>
+						
+						<tr>
+
+							<td width="80"><div class="coln coln-first">
+									航段2</div></td>
+							<td width="218"><div class="coln coln-second">
+									<span class="mr35">07月15日 17:30</span>
+								</div></td>
+							<td width="111"><div class="coln coln-third">CA110</div></td>
+							<td width="195">
+								 
+								<div class="coln coln-fourth coln-green status_1">客票已使用</div> 
+							</td>
+						</tr>
+						
+					</table>
+				</div>
+				<!-- 客票信息 end -->
+				
+				
+				<!-- 客票信息 end -->
+
+				<!-- 分页 start -->
+				<div class="clearfix page-box hide">
+					<span id="total-page" class="hide">2</span> <span id="current-page"
+						class="hide">1</span>
+					<ul class="clearfix page-ul">
+						<li><a class="pre-page" href="javascript:void(0);"><i
+								class=" icon-pagepre"></i></a></li>
+						<li><a class="cur-page" href="javascript:void(0);">1</a></li>
+						<li><a href="javascript:void(0);">2</a></li>
+						<li><a class="next-page" href="javascript:void(0);"><i
+								class="icon-pagenext"></i></a></li>
+					</ul>
+				</div>
+				<!-- 分页 end -->
+			</div>
+			
+			<!-- 放大查看 按钮 start -->
+			<div id="validate_view_journey_detail" class="clearfix view-box pc-view-box">
+				<a href="javascript:void(0);"><i class="icon-fangda"></i>放大查看</a>
+			</div>
+			<!-- 放大查看 按钮 end -->
+			
+		</div>
+		<!-- 右侧 无姓名 end-->
+
+		<!-- 提示信息 start -->
+		<div class="clearfix tip-box">
+			<div class="tip-insurance">
+				<span>购买保险产品请点击此链接选购<a href="http://www.auib.com.cn">www.auib.com.cn</a></span>
+				<span class="color-red">现买保险送高倍里程，航延险2小时起赔</span>
+			</div>
+			<div class="tip-lititle">
+				<span>由于国际业务较为复杂，有些远程系统提供的信息可能不正确或不完整，</span> <span>对于个别国际票，请从出票机构或承运人处获取准确信息。</span>
+			</div>
+		</div>
+		<!-- 提示信息 end -->
+
+	</div>
+
+	<!-- 放大查看 信息 start -->
+	
+	<div id="popup_detail" class="clearfix v-info-box hide ">
+		<div class="view-info-box">
+			<!-- 第一行信息 start -->
+			<ul class="one-ul">
+				<li>
+					<div class="chayan-order">
+						<span class="chayan-order-num">  查验单号：GP170627247369 
+						</span> <span>  印刷序号： 1254602078
+							&#160;&#160; 2
+							
+						</span>
+					</div> <span class="ml726">SERIAL NUMBER：</span>
+				</li>
+			</ul>
+			<!-- 第一行信息 end -->
+
+			<!-- 第二行信息 start -->
+			<ul class="two-ul">
+				<li><span class="ml27" style="width: 172px;"> QI/CHENGZUO
+						&nbsp;
+				</span> <span class="identity-card"> 
+						&nbsp;
+				</span> <span class="visa"> NON-END/PENALTY APPLY
+						&#160;&#160; 
+						&#160;&#160; 2
+						&nbsp;
+				</span></li>
+			</ul>
+			<!-- 第二行信息 end -->
+			<!-- lost info start -->
+			<div class="pnr-no" style="height: 32px;">
+				
+				&nbsp;
+			</div>
+			<!-- lost info end -->
+
+			<!--journey detail - start-->
+			<table class="journey-detail">
+				<tr align="center" width="996">
+					<td width="50" height="150" rowspan="2" align="right" valign="top"
+						nowrap="">
+						<div style="width: 50px; line-height: 25px;">
+							
+							<br />
+							
+							
+							<br />
+							
+							
+							<br />
+							
+						</div>
+					</td>
+					<td width="80" height="150" rowspan="2" valign="top" nowrap="">
+						<div id="from" style="width: 80px; line-height: 25px;">
+							北京
+							<br />
+							
+							香港
+							<br />
+							
+							北京
+							<br />
+							
+							VOID
+						</div>
+					</td>
+					<td width="45" height="150" rowspan="2" valign="top" nowrap="">
+						<div id="carrier" style="width: 45px; line-height: 25px;">
+							PEK
+							<br />
+							
+							HKG
+							<br />
+							
+							PEK
+							<br />
+							
+						</div>
+					</td>
+					<td width="40" height="120" align="left" valign="top" nowrap="">
+						<div id="flight" style="width: 40px; line-height: 25px">
+							
+							国航
+							<br />
+							
+							国航
+							<br />
+							
+							VOID
+						</div>
+					</td>
+					<td width="60" height="120" valign="top" nowrap="">
+						<div id="flight_no" style="width: 60px; line-height: 25px;">
+							
+							CA
+							111
+							<br />
+							
+							CA
+							110
+							<br />
+							
+						</div>
+					</td>
+					<td width="40" height="120" valign="top" nowrap="">
+						<div id="class" style="width: 40px; line-height: 25px;">
+							
+							W<br />
+							
+							T<br />
+							
+						</div>
+					</td>
+					<td width="100" height="120" valign="top" nowrap="" align="center">
+						<div id="date" style="width: 100px; line-height: 25px;">
+							
+							07-09
+							<br />
+							
+							07-15
+							<br />
+							
+						</div>
+					</td>
+					<td width="85" height="120" valign="top" nowrap="" align="left">
+						<div id="time" style="width: 85px; line-height: 25px;">
+							
+							10:55
+							<br />
+							
+							17:30
+							<br />
+							
+						</div>
+					</td>
+					<td width="150" height="120" valign="top" nowrap="">
+						<div id="fare_basts" style="width: 150px; line-height: 25px;">
+							
+							W
+							<br />
+							
+							T
+							<br />
+							
+						</div>
+					</td>
+					<td width="100" height="120" valign="top" nowrap="">
+						<div style="width: 100px; line-height: 25px;"></div>
+					</td>
+					<td width="100" height="105" valign="top" nowrap="">
+						<div style="width: 100px; line-height: 25px;"></div>
+					</td>
+					<td width="80" height="120" valign="top" nowrap="">
+						<div id="allow" style="width: 80px; line-height: 25px;">
+							
+							1PC
+							<br />
+							
+							1PC
+							<br />
+							
+						</div>
+					</td>
+				</tr>
+			</table>
+			<!--journey detail - end-->
+
+			<!-- 第六行信息 start -->
+			<ul class="six-ul">
+				<li><span class="fare"> CNY
+						&#160;  1460.0 
+				</span> <span class="caac-development-fund"> CNY CN
+						&#160;&#160;  90.0 
+				</span> <span class="fuel-surcharge"> CNY G3
+						&#160;&#160;  79.0 
+				</span> <span class="other-taxes"> CNY XT
+						 188.0 
+				</span> <span class="cny-total"> CNY
+						&#160;  1817.0 
+				</span></li>
+			</ul>
+			<!-- 第六行信息 end -->
+
+			<!-- 第七行信息 start -->
+			<ul class="seven-ul">
+				<li><span class="e-ticket-no"> 9994499667398<br />
+						
+				</span> <span class="ck-info"> 2078
+						&nbsp;
+				</span> <span class="information"> 
+						&nbsp;
+				</span> <span class="insurance"> XXX
+						&nbsp;
+				</span></li>
+			</ul>
+			<!-- 第七行信息 end -->
+
+			<!-- 第八行信息 start -->
+			<ul class="eight-ul">
+				<li><span class="agent-code">  &nbsp;
+				</span> <span class="issue-by"> 中国国际航空股份有限公司北京中关村售票处
+						&nbsp;
+				</span> <span class="date-off-issue"> 2017-06-27 
+						&nbsp;
+				</span></li>
+			</ul>
+			<!-- 第八行信息 end -->
+
+		</div>
+
+		<!-- 按钮 关闭 start -->
+		<div class="clearfix close-view-box">
+			<a class="close-view" href="javascript:void(0)">关闭</a>
+		</div>
+		<!-- 按钮 关闭 end -->
+
+	</div>
+	<!-- 放大查看 信息 end -->
+	
+	<div class="gray-bk hide" style="height: 3266px;"></div>
+</body>
+</html>

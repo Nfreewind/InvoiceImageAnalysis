@@ -171,3 +171,42 @@ void GetRednessMap(const Mat& BgrImage, Mat& RedImage)
 		}
 	}
 }
+
+cv::Mat gammaTransform(cv::Mat& srcImage, float kFactor)
+{
+	// 建立查表文件LUT
+	unsigned char LUT[256];
+	for (int i = 0; i < 256; i++)
+	{
+		// Gamma变换表达式
+		LUT[i] = saturate_cast<uchar>(pow((float)(
+			i / 255.0), kFactor) * 255.0f);
+	}
+	cv::Mat resultImage = srcImage.clone();
+	// 输入通道为单通道时 直接进行变换
+	if (srcImage.channels() == 1)
+	{
+		cv::MatIterator_<uchar> iterator =
+			resultImage.begin<uchar>();
+		cv::MatIterator_<uchar> iteratorEnd =
+			resultImage.end<uchar>();
+		for (; iterator != iteratorEnd; iterator++)
+			*iterator = LUT[(*iterator)];
+	}
+	else
+	{
+		// 输入通道为三通道时 需对每个通道分别进行变换
+		cv::MatIterator_<cv::Vec3b> iterator =
+			resultImage.begin<Vec3b>();
+		cv::MatIterator_<cv::Vec3b> iteratorEnd =
+			resultImage.end<Vec3b>();
+		//  通过查找表进行转换
+		for (; iterator != iteratorEnd; iterator++)
+		{
+			(*iterator)[0] = LUT[((*iterator)[0])];
+			(*iterator)[1] = LUT[((*iterator)[1])];
+			(*iterator)[2] = LUT[((*iterator)[2])];
+		}
+	}
+	return resultImage;
+}

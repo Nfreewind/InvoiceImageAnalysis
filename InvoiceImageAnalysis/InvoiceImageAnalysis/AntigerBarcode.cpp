@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "AntigerBarcode.h"
 #ifdef _WIN64
-#pragma comment(lib, "DBRx64.lib")
-#pragma comment(lib, "SoftekBarcode64DLL.lib")
+//#pragma comment(lib, "DBRx64.lib")
+//#pragma comment(lib, "SoftekBarcode64DLL.lib")
+#define DLLNAME	"SoftekBarcode64DLL.dll"
 #else
-#pragma comment(lib, "DBRx86.lib")
+//#pragma comment(lib, "DBRx86.lib")
 #pragma comment(lib, "SoftekBarcodeDLL.lib")
+#define DLLNAME	"SoftekBarcodeDLL.dll"
 #endif
 
 
@@ -104,20 +106,20 @@ HDIB Mat2Dib(Mat &Img)
 	return hImage;
 }
 
-void InitBarcodeReader(CBarcodeReader &reader, HANDLE &hBarcode)
+void InitBarcodeReader(HANDLE &hBarcode)
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// DynamSoft
-	reader.InitLicense("t0068MgAAAKOmEhKZl9J5EwQWUSBJNVAPFURAUnYk/qmSR4RSOwjyQ8nOBegubmtEZWmlqRXcCK4EhWkj6tABCCQhUZpvbqM=");
+	//reader.InitLicense("t0068MgAAAKOmEhKZl9J5EwQWUSBJNVAPFURAUnYk/qmSR4RSOwjyQ8nOBegubmtEZWmlqRXcCK4EhWkj6tABCCQhUZpvbqM=");
 
-	//Set Property
-	reader.SetBarcodeFormats(BF_CODE_39);
-	reader.SetMaxBarcodesNumPerPage(1);
-
+	////Set Property
+	//reader.SetBarcodeFormats(BF_CODE_39);
+	//reader.SetMaxBarcodesNumPerPage(1);
+	LoadLibraryA(DLLNAME);
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Softek
 	hBarcode = mtCreateBarcodeInstance();
-	mtSetLicenseKey(hBarcode, "88H8V1J178ZZD5IKL7ABKN5SK451V2DP");
+	//mtSetLicenseKey(hBarcode, "88H8V1J178ZZD5IKL7ABKN5SK451V2DP");
 
 	// 设定识别条码类型
 	mtSetReadCode128(hBarcode, 0);
@@ -166,7 +168,7 @@ void InitBarcodeReader(CBarcodeReader &reader, HANDLE &hBarcode)
 	mtSetShowCheckDigit(hBarcode, 1);
 }
 
-void BarcodeRead(Mat &image, CBarcodeReader &reader , HANDLE &hBarcode, vector<Barcode>& barcodes)
+void BarcodeRead(Mat &image, HANDLE &hBarcode, vector<Barcode>& barcodes)
 {
 	barcodes.clear();
 
@@ -217,7 +219,7 @@ void BarcodeRead(Mat &image, CBarcodeReader &reader , HANDLE &hBarcode, vector<B
 	for (int iIndex = 1; iIndex <= nBarCodes; iIndex++)
 	{
 		Barcode recogBarcode;
-		recogBarcode.iType = BF_CODE_39;
+		recogBarcode.iType = 0x1;
 		sprintf(recogBarcode.sBarCodeData, "%s", mtGetBarString(hBarcode, iIndex));
 		int nDirection;
 		nDirection = mtGetBarStringDirection(hBarcode, iIndex);

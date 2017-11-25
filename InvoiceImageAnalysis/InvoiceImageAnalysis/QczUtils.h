@@ -12,7 +12,9 @@ using namespace std;
 
 
 namespace QczFile{
+
 	void getFiles_(string path, vector<string>& files);
+
 	string splitFileName(string path);
 
 	void splitExt(string name, string& subName, string& ext);
@@ -40,4 +42,10 @@ namespace QczSort{
 	inline bool compareIndexD(const pair<T, D>& a, const pair<T, D>& b){
 		return a.first < b.first;
 	}
+}
+
+namespace QczVision{
+
+	void rotateImg(cv::Mat src, cv::Mat& dst, cv::Mat& M, double degree);
+
 }

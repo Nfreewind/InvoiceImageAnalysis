@@ -13,13 +13,13 @@ void TemplateMaker(Mat im, string TemplatePath){
 	Mat InputImg, RedImg;
 
 	vector<Barcode> barcodes;
-	CBarcodeReader barcodeReader;
+	//CBarcodeReader barcodeReader;
 	HANDLE hBarcode;
-	InitBarcodeReader(barcodeReader, hBarcode);
+	InitBarcodeReader(hBarcode);
 
 	im.copyTo(InputImg);
 
-	BarcodeRead(InputImg, barcodeReader, hBarcode, barcodes);
+	BarcodeRead(InputImg, hBarcode, barcodes);
 
 
 	double ratio;

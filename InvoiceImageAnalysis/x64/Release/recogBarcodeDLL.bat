@@ -1,0 +1,2 @@
+recogBarcodeDLL.exe Imgs
+pause

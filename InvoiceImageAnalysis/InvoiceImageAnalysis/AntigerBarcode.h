@@ -2,7 +2,8 @@
 #include <cv.h>
 #include <opencv2/opencv.hpp>
 #include <highgui.h>
-#include "DynamsoftBarcodeReader.h"
+//#include "DynamsoftBarcodeReader.h"
+#include <windows.h>
 #include "SoftekBarcodeDLL.h"
 
 using namespace cv;
@@ -20,5 +21,5 @@ typedef struct {
 
 HDIB Mat2Dib(Mat &Img);
 
-void InitBarcodeReader(CBarcodeReader &reader, HANDLE &hBarcode);
-void BarcodeRead(Mat &image, CBarcodeReader &reader,HANDLE &hBarcode, vector<Barcode>& barcodes);
+void InitBarcodeReader(HANDLE &hBarcode);
+void BarcodeRead(Mat &image, HANDLE &hBarcode, vector<Barcode>& barcodes);

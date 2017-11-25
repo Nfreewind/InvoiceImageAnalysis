@@ -10,8 +10,8 @@ using namespace cv;
 
 /*
 Output: 
-	0	: normal
-	-1	: none seal detected
+	0			: normal
+	-1			: none seal detected
 Input:
 	InputImg	: read from disk
 	ellipses	: output detected Ellipses
@@ -21,4 +21,4 @@ Input:
 */
 
 
-int EllipseDetector(Mat InputImg, vector<struct Ellipse>& ellipses, int& idx, struct Ellipse Template, double& scale, string savePath = "");
+int EllipseDetector(Mat InputImg, vector<struct Ellipse>& ellipses, vector<int>& index, struct Ellipse Template, double& scale, string savePath = "", string fold = "");

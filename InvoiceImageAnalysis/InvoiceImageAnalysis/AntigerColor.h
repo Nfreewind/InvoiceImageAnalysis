@@ -8,3 +8,4 @@ using namespace cv;
 void Decolorization(const cv::Mat &im, cv::Mat &out);
 void FastDecolorization(const cv::Mat &im, cv::Mat &out);
 void GetRednessMap(const Mat& BgrImage, Mat& RedImage);
+cv::Mat gammaTransform(cv::Mat& srcImage, float kFactor);

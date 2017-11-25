@@ -57,6 +57,9 @@
     <ClInclude Include="QczPreProcess.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="recogBarcodeDLL.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -89,13 +92,13 @@
     <ClCompile Include="QczEllipsePkg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="QczEllipsePkgTest.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="QczTemplateMaker.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="QczPreProcess.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="recogBarcodeDLL.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

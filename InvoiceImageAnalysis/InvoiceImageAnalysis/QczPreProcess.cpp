@@ -20,10 +20,14 @@
 #include "QczEllipsePkg.h"
 #include <FastPCCR.h>
 
+#define DEBUG_SEAL 0
+#define DEBUG_RECOG 0
+
 int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& BarcodeStr, string savePath, string fold){
 
 	int step = 0;
 
+	//MatchPoints matchPoints, matchPointsTem;
 	vector<struct Ellipse> ellipses;
 	int idx = 0;
 	//	load template
@@ -31,6 +35,15 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 	Barcode barcode;
 	Rect BarcodeStrRect;
 	TemplateLoader(TemplatePath, TemTopEllipse, TemBottomEllipse, barcode, BarcodeStrRect);
+
+	if (TemTopEllipse._a == 0 || TemTopEllipse._b == 0 || TemBottomEllipse._a == 0 || TemBottomEllipse._b == 0){
+		return -5;
+	}
+
+	//matchPointsTem.Barcode = Point(barcode.rcBarcodeRegion.x + barcode.rcBarcodeRegion.width / 2, barcode.rcBarcodeRegion.y + barcode.rcBarcodeRegion.height / 2);
+	//matchPointsTem.BarcodeStr = Point(BarcodeStrRect.x + BarcodeStrRect.width / 2, BarcodeStrRect.y + BarcodeStrRect.height / 2);
+	//matchPointsTem.TopSeal = Point(TemTopEllipse._xc, TemTopEllipse._yc);
+	//matchPointsTem.BottomSeal = Point(TemBottomEllipse._xc, TemBottomEllipse._yc);
 
 
 	Mat InputImg;
@@ -43,136 +56,51 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 		transpose(InputImg, InputImg);
 		flip(InputImg, InputImg, 1);
 	}
-
-	//if (savePath != ""){
-	//	imwrite(savePath, InputImg);
-	//}
-
-	// detect seal
-	double scale = 0.0;
-	EllipseDetector(InputImg, ellipses, idx, TemTopEllipse, scale);
-
+	/*if (index.size() == 1){
+		matchPoints.TopSeal = Point(ellipses[index[0]]._xc, ellipses[index[0]]._yc);
+	}
+	else if (index.size() == 2){
+		matchPoints.TopSeal = Point(ellipses[index[0]]._xc, ellipses[index[0]]._yc);
+		matchPoints.BottomSeal = Point(ellipses[index[1]]._xc, ellipses[index[1]]._yc);
+	}*/
 	//detect barcode
 
 	vector<Barcode> barcodes;
-	CBarcodeReader barcodeReader;
+	//CBarcodeReader barcodeReader;
 	HANDLE hBarcode;
-	InitBarcodeReader(barcodeReader, hBarcode);
+	InitBarcodeReader(hBarcode);
 
 
-	BarcodeRead(InputImg, barcodeReader, hBarcode, barcodes);
-
+	BarcodeRead(InputImg, hBarcode, barcodes);
+	GlobalFree(hBarcode);
 	// recognition barcode
 	if (barcodes.size() != 0){
 		BarcodeStr = barcodes[0].sBarCodeData;
-		//return 0;
-	}
-	else{
+		// delete blank
+		int pos = BarcodeStr.find_last_of(" ");
+		BarcodeStr.erase(BarcodeStr.begin() + pos);
 
+		Barcode detectedBarcode = barcodes[0];
+		return 0;
 	}
+
+
+	// detect seal
+	double scale = 0.0;
+	vector<int> index;
+	//EllipseDetector(InputImg, ellipses, index, TemTopEllipse, scale, savePath, fold);
+	int ellipseFlag = EllipseDetector(InputImg, ellipses, index, TemTopEllipse, scale);
+	if (ellipseFlag < 0){
+		return ellipseFlag;
+	}
+	struct Ellipse TopEllipse = ellipses[index[0]];
 
 	//rotate img 
-	struct Ellipse TopEllipse = ellipses[idx];
-	int width = InputImg.cols, height = InputImg.rows;
-
-	Point2f center;
-	center.x = width / 2.0 + 0.5;
-	center.y = height / 2.0 + 0.5;
-
-	double degree = TopEllipse._rad - TemTopEllipse._rad;
-	double angle = degree * 180.0 / CV_PI;
-	double sin_theta = sin(degree), cos_theta = cos(degree);
-
-	////////////////////////////////////////////////////////////////////////////
-	// tag the five points
-	/*
-	//for (int i = 0; i < 5; i++){
-	//	char num[100];
-	//	sprintf(num, "%d", i);
-	//	string num_s(num);
-	//	putText(InputImg, num_s, points[i], FONT_HERSHEY_PLAIN, 3, Scalar(0, 0, 255), 3);
-	//}
-	//if (savePath != ""){
-	//	imwrite(savePath, InputImg);
-	//}
-	*/
-	////////////////////////////////////////////////////////////////////////////
-
-	///////////////////////////////////////////////////////////////////////////
-	// get affine matrix to detect the word
-	/*
-	//double degree = TopEllipse._rad - 0.0174539089;
-	//double angle = degree * 180.0 / CV_PI;
-	//double sin_theta = sin(degree), cos_theta = cos(degree);
-
-	//Point2f points[5];
-	//int x = TopEllipse._xc, y = TopEllipse._yc;
-	//int l_len = TopEllipse._a, s_len = TopEllipse._b;
-	//points[0] = Point2f(x + s_len * sin_theta, y + s_len*cos_theta);
-	//points[1] = Point2f(x - l_len * cos_theta, y - l_len*sin_theta);
-	//points[2] = Point2f(x - s_len * sin_theta, y - s_len*cos_theta);
-	//points[3] = Point2f(x + l_len * cos_theta, y + l_len*sin_theta);
-	//points[4] = Point2f(x, y);
-	//Point2f TemPoints[5];
-	//int x_t = TemTopEllipse._xc, y_t = TemTopEllipse._yc;
-	//int l_t_len = TemTopEllipse._a, s_t_len = TemTopEllipse._b;
-	//double degree_t = TemTopEllipse._rad - 0.0174539089;
-	//double angle_t = degree_t * 180.0 / CV_PI;
-	//double sin_t_theta = sin(degree_t), cos_t_theta = cos(degree_t);
-	//TemPoints[0] = Point2f(x_t + s_t_len * sin_t_theta, y_t + s_t_len*cos_t_theta);
-	//TemPoints[1] = Point2f(x_t - l_t_len * cos_t_theta, y_t - l_t_len*sin_t_theta);
-	//TemPoints[2] = Point2f(x_t - s_t_len * sin_t_theta, y_t - s_t_len*cos_t_theta);
-	//TemPoints[3] = Point2f(x_t + l_t_len * cos_t_theta, y_t + l_t_len*sin_t_theta);
-	//TemPoints[4] = Point2f(x_t, y_t);
-
-	//Mat M1 = getAffineTransform(TemPoints, points);
-
-	//cout << M1.at<double>(0, 0) << endl;
-	//cout << M1.at<double>(0, 1) << endl;
-	//cout << M1.at<double>(0, 2) << endl;
-	//cout << M1.at<double>(1, 0) << endl;
-	//cout << M1.at<double>(1, 1) << endl;
-	//cout << M1.at<double>(1, 2) << endl;
-
-	//Point2f TemStrPoints[4];
-	//x = BarcodeStrRect.x, y = BarcodeStrRect.y;
-	//int w = BarcodeStrRect.width, h = BarcodeStrRect.height;
-
-	//double axis[12];
-	//axis[0] = x; axis[1] = x + w - 1; axis[2] = x; axis[3] = x + w - 1;
-	//axis[4] = y; axis[5] = y; axis[6] = y + h - 1; axis[7] = y + h - 1;
-	//axis[8] = 1; axis[9] = 1; axis[10] = 1; axis[11] = 1;
-	//Mat TemStrPointsMat(3, 4, CV_64F, axis);
-	//Mat StrPoints = M1 * TemStrPointsMat;
-	//Point2f pointLT(StrPoints.at<double>(0, 0), StrPoints.at<double>(1, 0));
-	//Point2f pointRT(StrPoints.at<double>(0, 1), StrPoints.at<double>(1, 1));
-	//Point2f pointLB(StrPoints.at<double>(0, 2), StrPoints.at<double>(1, 2));
-	//Point2f pointRB(StrPoints.at<double>(0, 3), StrPoints.at<double>(1, 3));
-
-	//rectangle(InputImg, pointLT, pointRB, Scalar(0, 0, 255), 3);
-	//if (savePath != ""){
-	//	imwrite(savePath, InputImg);
-	//}
-	*/
-	//////////////////////////////////////////////////////////////////////////
-
-	int width_rotate = width * fabs(cos_theta) + height * fabs(sin_theta);
-	int height_rotate = width * fabs(sin_theta) + height *fabs(cos_theta);
-
-	float m[6];
-	Mat M(2, 3, CV_32F, m);
-	M = getRotationMatrix2D(center, angle, 1);
-	//cout << M.at<double>(0, 0) << endl;
-	//cout << M.at<double>(0, 1) << endl;
-	//cout << M.at<double>(0, 2) << endl;
-	//cout << M.at<double>(1, 0) << endl;
-	//cout << M.at<double>(1, 1) << endl;
-	//cout << M.at<double>(1, 2) << endl;
-	M.at<double>(0, 2) += (width_rotate - width) / 2;
-	M.at<double>(1, 2) += (height_rotate - height) / 2;
-
-
 	//get dst center point 
+	Mat M, ImgRotate;
+	double degree = TopEllipse._rad - TemTopEllipse._rad;
+	QczVision::rotateImg(InputImg, ImgRotate, M, degree);
+
 	double axis[3];
 	axis[0] = TopEllipse._xc; axis[1] = TopEllipse._yc;
 	axis[2] = 1;
@@ -192,9 +120,9 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 	int RotateRectX = lt.x - TemRectFusion.width * scale / 1.5;
 	Rect RotateRect(RotateRectX, lt.y, TemRectFusion.width * scale * 1.6, TemRectFusion.height * scale * 1.2);
 
-	Mat ImgRotate;
-	warpAffine(InputImg, ImgRotate, M, Size(width_rotate,height_rotate), CV_INTER_LINEAR + CV_WARP_FILL_OUTLIERS, BORDER_CONSTANT,cvScalarAll(0));
-	rectangle(ImgRotate, RotateRect, Scalar(0, 0, 255), 3);
+	//Mat ImgRotate;
+	//warpAffine(InputImg, ImgRotate, M, Size(width_rotate,height_rotate), CV_INTER_LINEAR + CV_WARP_FILL_OUTLIERS, BORDER_CONSTANT,cvScalarAll(0));
+	//rectangle(ImgRotate, RotateRect, Scalar(0, 0, 255), 3);
 	
 	// threshold  + find character
 	Rect Total(0, 0, ImgRotate.cols, ImgRotate.rows);
@@ -213,42 +141,6 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 	int constValue = 10;
 	//Mat local;
 	adaptiveThreshold(wordPart, binWordPart, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY_INV, blocksize, constValue);
-
-	//////////////////////////////////////////////////////////////////////////
-	// erode + dilate
-	//Mat erodeImg, dilateImg;
-	//int erodeSize = 1;
-	//int dilateSize = 1;
-	//Mat eEllement = getStructuringElement(MORPH_RECT, Size(2 * erodeSize + 1, 2 * erodeSize + 1), Point(erodeSize, erodeSize));
-	//Mat dEllement = getStructuringElement(MORPH_RECT, Size(2 * dilateSize + 1, 2 * dilateSize + 1), Point(dilateSize, dilateSize));
-	//dilate(binWordPart, dilateImg, dEllement);
-	//erode(binWordPart, erodeImg, eEllement);
-	//if (savePath != ""){
-	//	string name = QczFile::splitFileName(savePath);
-	//	string subName, ext;
-	//	QczFile::splitExt(name, subName, ext);
-	//	string path = fold + "\\" + subName + "_dilate" + ext;
-	//	imwrite(path, dilateImg);
-	//}
-	/////////////////////////////////////////////////////////////////////////
-
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_src" + ext;
-		imwrite(path, wordPart);
-		step++;
-	}
-
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_bin" + ext;
-		imwrite(path, binWordPart);
-		step++;
-	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// find contours 
@@ -278,29 +170,7 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 	for (int i = 0; i < rects.size(); i++){
 		rectangle(binThreshold, rects[i], Scalar(0, 0, 255), 1);
 	}
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_bin_threshold" + ext;
-		step++;
-		imwrite(path, binThreshold);
-	}
-
 	///////////////////////////////////////////////////////////////////////////
-	// merge rects with intersect
-	//for (int i = 0; i < rects.size() - 1; i++){
-	//	for (int j = i + 1; j < rects.size(); j++){
-	//		Rect tmp = rects[i] & rects[j];
-	//		if (tmp.area() != 0){
-	//			rects[j] = rects[i] | rects[j];
-	//			rects.erase(rects.begin() + i);
-	//			i--;
-	//			break;
-	//		}
-	//	}
-	//}
-
 	// remove rects contained
 	sort(rects.begin(), rects.end(), QczSort::compareRectArea);
 	for (int i = 0; i < rects.size() - 1; i++){
@@ -320,49 +190,6 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 			rects.erase(rects.begin() + i);
 		}
 	}
-
-	if (savePath != ""){
-		Mat binResultColor;
-		cvtColor(binResult, binResultColor, CV_GRAY2BGR);
-		for (int i = 0; i < rects.size(); i++){
-			rectangle(binResultColor, rects[i], Scalar(0, 0, 255), 1);
-		}
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_bin_remove_contain" + ext;
-		step++;
-		imwrite(path, binResultColor);
-	}
-	///////////////////////////////////////////////////////////////////////
-
-	// fit line
-	/*
-	std::vector<cv::Point> points;
-	for (int i = 0; i < rects.size(); i++){
-		Point tmp(rects[i].x + rects[i].width / 2, rects[i].y + rects[i].height / 2);
-		points.push_back(tmp);
-	}
-	cv::Vec4f line;
-	fitLine(points, line, CV_DIST_HUBER, 0, 0.01, 0.01);
-	double cos_theta_l = line[0], sin_theta_l = line[1], x0 = line[2], y0 = line[3];
-	double phi = atan2(sin_theta_l, cos_theta_l) + CV_PI / 2.0;
-	double rho = y0*cos_theta_l - x0*sin_theta_l;
-	double k = sin_theta_l / cos_theta_l;
-	double b = y0 - k*x0;
-	double x = 0;
-	double y = k*x + b;
-	cv::line(binResultColor, Point(x0, y0), Point(x, y), Scalar(0, 0, 255), 2);
-
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_line" + ext;
-		imwrite(path, binResultColor);
-	}
-	*/
-
 	///////////////////////////////////////////////////////////////////////
 	// merge horizontal
 	for (int i = 0; i < rects.size() - 1; i++){
@@ -385,20 +212,6 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 		if (ratio > ratioThreshold || areaRatio < 0.001 || areaRatio > 0.02 || h > binResult.rows / 10){
 			rects.erase(rects.begin() + i);
 		}
-	}
-
-	if (savePath != ""){
-		Mat binResultColor;
-		cvtColor(binResult, binResultColor, CV_GRAY2BGR);
-		for (int i = 0; i < rects.size(); i++){
-			rectangle(binResultColor, rects[i], Scalar(0, 0, 255), 1);
-		}
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_bin_merge_horizontal" + ext;
-		step++;
-		imwrite(path, binResultColor);
 	}
 	///////////////////////////////////////////////////////////////////////
 	// project for cluster
@@ -457,40 +270,9 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 		}
 		clusterRect[i] = tmp;
 	}
-
-	if (savePath != ""){
-		Mat binClusterColor;
-		cvtColor(binResult, binClusterColor, CV_GRAY2BGR);
-		for (int i = 0; i < clusterRect.size(); i++){
-			rectangle(binClusterColor, clusterRect[i], Scalar(0, 0, 255), 2);
-		}
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_cluster" + ext;
-		step++;
-		imwrite(path, binClusterColor);
-	}
-
 	///////////////////////////////////////////////////////////
 	// remove noise rect and keep the top 11
 	vector<int> wordCluster = cluster[cluster_index];
-
-	if (savePath != ""){
-		Mat binClusterColor;
-		cvtColor(binResult, binClusterColor, CV_GRAY2BGR);
-		for (int i = 0; i < wordCluster.size(); i++){
-			rectangle(binClusterColor, rects[wordCluster[i]], Scalar(0, 0, 255), 2);
-		}
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_cluster_sub_rect" + ext;
-		step++;
-		imwrite(path, binClusterColor);
-	}
-
-
 
 	if (wordCluster.size() > 11){
 		double meanWidth = 0;
@@ -508,21 +290,6 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 			wordCluster.push_back(disIndex[i].second);
 		}
 	}
-
-	if (savePath != ""){
-		Mat binClusterColor;
-		cvtColor(binResult, binClusterColor, CV_GRAY2BGR);
-		for (int i = 0; i < wordCluster.size(); i++){
-			rectangle(binClusterColor, rects[wordCluster[i]], Scalar(0, 0, 255), 2);
-		}
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_cluster_sub_rect_after" + ext;
-		step++;
-		imwrite(path, binClusterColor);
-	}
-
 	///////////////////////////////////////////////////////////
 	// draw the rotateRect
 	vector<Point> corner;
@@ -535,40 +302,16 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 	}
 
 	RotatedRect rRect = minAreaRect(corner);
-	if (savePath != ""){
-		Mat binRotateRect;
-		cvtColor(binResult, binRotateRect, CV_GRAY2BGR);
-		Point2f vertices[4];
-		rRect.points(vertices);
-		for (int i = 0; i < 4; i++){
-			line(binRotateRect, vertices[i], vertices[(i + 1) % 4], Scalar(0, 0, 255));
-		}
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_rotate_rect" + ext;
-		step++;
-		imwrite(path, binRotateRect);
-	}
+
+	///////////////////////////////////////////////////////////
 	double angle_roRect = fabs(rRect.angle) > 45 ? (180 + rRect.angle) : (90 + rRect.angle);
 	double degree_roRect = angle_roRect * CV_PI / 180;
-	double cos_theta_roRect = cos(degree_roRect); double sin_theta_roRect = sin(degree_roRect);
+	//double cos_theta_roRect = cos(degree_roRect); double sin_theta_roRect = sin(degree_roRect);
 	Mat roMat;
 	wordPart.copyTo(roMat);
+	Mat M_roRect, ImgRotate_roRect;
+	QczVision::rotateImg(roMat, ImgRotate_roRect, M_roRect, degree_roRect);
 	int roWidth = roMat.cols, roHeight = roMat.rows;
-
-	int width_after_rotate = roWidth * fabs(cos_theta_roRect) + roHeight * fabs(sin_theta_roRect);
-	int height_after_rotate = roWidth * fabs(sin_theta_roRect) + roHeight *fabs(cos_theta_roRect);
-	float m_roRect[6];
-	Mat M_roRect(2, 3, CV_32F, m_roRect);
-	Point2f center_roRect;
-	center_roRect.x = roWidth / 2.0 + 0.5;
-	center_roRect.y = roHeight / 2.0 + 0.5;
-	M_roRect = getRotationMatrix2D(center_roRect, angle_roRect, 1);
-	M_roRect.at<double>(0, 2) += (width_after_rotate - roWidth) / 2;
-	M_roRect.at<double>(1, 2) += (height_after_rotate - roHeight) / 2;
-	Mat ImgRotate_roRect;
-	warpAffine(wordPart, ImgRotate_roRect, M_roRect, Size(width_after_rotate, height_after_rotate), CV_INTER_LINEAR + CV_WARP_FILL_OUTLIERS, BORDER_CONSTANT, cvScalarAll(0));
 
 	Point2f vertices[4];
 	rRect.points(vertices);
@@ -588,19 +331,13 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 	Rect recogWordRect((int)minX, (int)minY, (int)(maxX - minX + 1), (int)(maxY - minY + 1));
 	ImgRotate_roRect(recogWordRect).copyTo(recogWordMat);
 
-
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_word_for_recog" + ext;
-		step++;
-		imwrite(path, recogWordMat);
-	}
 	///////////////////////////////////////////////////////////
 	// recongize the word
-	Mat recogWordBin;
-	threshold(recogWordMat, recogWordBin, 0, 255, CV_THRESH_BINARY_INV | CV_THRESH_OTSU);
+	Mat recogWordBin, recogWordMean;
+	int meanValue = mean(recogWordMat)[0];
+	threshold(recogWordMat, recogWordBin, meanValue, 1, CV_THRESH_BINARY_INV);
+	//threshold(recogWordMat, recogWordBin, 0, 255, CV_THRESH_BINARY_INV | CV_THRESH_OTSU);
+
 	Mat segWordPos;
 	reduce(recogWordBin, segWordPos, 0, CV_REDUCE_SUM,CV_32S);
 	vector<int> segPos;
@@ -623,16 +360,18 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 		Mat tmp;
 		recogWordBin(Range::all(), Range(segPos[i], segPos[i + 1] + 1)).copyTo(tmp);
 		characters.push_back(tmp);
-		//imshow("bin", tmp);
-		//waitKey(0);
 	}
+	//for (int i = 0; i < characters.size(); i++){
+	//	string name = QczStr::int2string(i) + ".jpg";
+	//	imwrite(name, characters[i]);
+	//}
 	string recogResult;
 	for (int i = 0; i < characters.size(); i++){
 		int normSize = 64;
 		int col = characters[i].cols, row = characters[i].rows;
 		Mat tmp = Mat::zeros(normSize, normSize*col / row, IPL_DEPTH_8U);
 		resize(characters[i], tmp, tmp.size());
-		tmp = tmp / 255;
+		//tmp = tmp / 255;
 		CharacterArray array;
 		array.pArrayData = (unsigned char*)malloc(tmp.cols*tmp.rows*sizeof(unsigned char) * 2);
 		array.width = tmp.cols;
@@ -652,63 +391,15 @@ int PreProcess(Mat im, string TemplatePath, Mat& out, Rect& rect, string& Barcod
 		int *Dis = (int *)calloc(Recog_Candidate_Num, sizeof(int));
 		int num = Recognize(&array, InnerCode, Dis, Recog_Candidate_Num, LanguageSetOption);
 		recogResult.push_back(InnerCode[1]);
+		free(array.pArrayData);
+		free(InnerCode);
+		free(Dis);
 	}
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_word_for_recog_bin" + ext;
-		step++;
-		imwrite(path, recogWordBin);
+	if (recogResult.length() != 11){
+		return -2;
 	}
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_word_for_recog_bin_string.txt";
-		step++;
-		ofstream outfile(path.c_str());
-		outfile << recogResult << endl;
-		outfile.close();
-	}
+	BarcodeStr = recogResult;
 
-
-	///////////////////////////////////////////////////////////
-	Rect wordRect;
-
-	for (int i = 0; i < wordCluster.size(); i++){
-		if (i == 0){ wordRect = rects[wordCluster[0]]; }
-		else{ wordRect |= rects[wordCluster[i]]; }
-	}
-
-	if (savePath != ""){
-		Mat binClusterWordColor;
-		cvtColor(binResult, binClusterWordColor, CV_GRAY2BGR);
-		rectangle(binClusterWordColor, wordRect, Scalar(0, 0, 255), 2);
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_word" + ext;
-		step++;
-		imwrite(path, binClusterWordColor);
-	}
-
-	// re binary and character recognition
-	Mat wordMat;
-	wordPart(wordRect).copyTo(wordMat);
-	// rotate 90
-	transpose(wordMat, wordMat);
-	flip(wordMat, wordMat, 0);
-	if (savePath != ""){
-		string name = QczFile::splitFileName(savePath);
-		string subName, ext;
-		QczFile::splitExt(name, subName, ext);
-		string path = fold + "\\" + subName + "_" + QczStr::int2string(step) + "_word_flip" + ext;
-		step++;
-		imwrite(path, wordMat);
-	}
-	// re threshold
-
-
+	//////////////////////////////////////////////////////////
 	return 0;
 }

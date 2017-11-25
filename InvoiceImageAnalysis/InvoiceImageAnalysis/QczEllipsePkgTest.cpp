@@ -17,17 +17,19 @@
 using namespace cv;
 using namespace std;
 
-void main(){
+void main(int argc,char** argv){
 
-	string SrcImgFold = "F:\\qcz_pro\\实验室项目\\格式文档\\飞机票\\data\\Original_sub";
-	string DstImgFold = "Img_Out_Rotate";
+	string SrcImgFold = argv[1];
+	string DstImgFold = "Img_Out_Seal";
 	if (_access(DstImgFold.c_str(), 0)){ _mkdir(DstImgFold.c_str()); }
 
 	vector<string> ImgPaths;
 	QczFile::getFiles_(SrcImgFold, ImgPaths);
+	cout << ImgPaths.size() << endl;
 
 	int a = InitializeRecognizer(".\\dictionary");
 	if (a != 0){ cout << "init failed!---" << endl; return; }
+	else{ cout << "init successs!--" << endl; }
 
 
 
@@ -67,7 +69,7 @@ void main(){
 
 		////////////////////////////////////////////////////////////////////////
 
-		string TemplatePath = "template.txt";
+		string TemplatePath = "Template/template.txt";
 		Mat out;
 		Rect rect;
 		string BarcodeStr;
